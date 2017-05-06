@@ -1,3 +1,11 @@
+/*
+ * Trabalho de Organização de Arquivos - Arquivo Busca Filtrada
+ * Autores do Trabalho (Nome/NUSP):
+ * - Bruno Mitsuo Homma 		9293605
+ * - Leonardo Mendes Bonato		9074308
+ * - Keith Tsukada Sasaki 		9293414
+ * - Valeska Paroni Silva 		7977886
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -97,7 +105,7 @@ void buscaPor(char *registro, int size, char *chave, int campo, int reg_pos) {
 	char *aux; // auxiliar que se não tiver nulo, é porque achou a string chave contida na string palavraChave
 
 	// Verifica qual campo deve ser verificado para cada registro
-	if (campo > 1) {
+	if (campo > 1) { // caso seja pra filtrar as buscas pelos demais campos existentes sem ser o primeiro
 		inicial = pos[campo-2]+1;
 		if (registro[inicial] == '|') inicial += 1;
 		final = pos[campo-1]+1;
@@ -105,12 +113,25 @@ void buscaPor(char *registro, int size, char *chave, int campo, int reg_pos) {
 		palavraChave = (char *)malloc(sizeof(char)*tam);
 		for (int i = inicial; i < final; i++) palavraChave[p++] = registro[i];
 	}
-	
+
+	else { // caso seja pra filtrar as buscas pelo campo 1
+		inicial = 0;
+		final = pos[campo-1]+1;
+		tam = final-inicial;
+		palavraChave = (char *)malloc(sizeof(char)*tam);
+		for (int i = inicial; i < final; i++) palavraChave[p++] = registro[i];
+	}
+
+	for (int i = 0; i < strlen(chave); i++) {
+		if (chave[i] >= 97 && chave[i] <= 122) chave[i] -= 32;
+	}
+
 	// procura a sub-string chave na string palavraChave
 	aux = strstr(palavraChave, chave);
 
 	if (aux != NULL) {
 		printRegistro(registro, reg_pos); // imprime o registro caso encontre a sub-string
+		filtroNaoEncontrado = 0; // caso encontre o filtro, desliga a flag
 	} 
 }
 
@@ -147,6 +168,8 @@ void buscaFiltrada(FILE *stream, int filtro, char *chave) {
 	char *registro;
 	int reg_size;
 	int reg_pos = 1;
+
+	filtroNaoEncontrado = 1; // flag para indicar que não foi encontrado nenhum filtro
 
 	do {
 		registro = registros(stream, &reg_size); // carrega um registro na memória
@@ -195,5 +218,6 @@ void buscaFiltrada(FILE *stream, int filtro, char *chave) {
 		}
 		
 		reg_pos++; // mostra em qual resgistro está
-	} while(reg_size);	// enquanto tiver registros não vázios no arquivo binário.		
+	} while(reg_size);	// enquanto tiver registros não vázios no arquivo binário.
+	if (filtroNaoEncontrado) printf("Filtro não encontrado...\n");		
 }

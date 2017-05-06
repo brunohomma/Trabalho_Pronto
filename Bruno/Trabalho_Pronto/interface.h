@@ -3,5 +3,6 @@
 
 void interfaceInicial();
 void interfaceFacial();
+void apagaTela();
 
 #endif

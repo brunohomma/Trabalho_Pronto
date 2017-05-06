@@ -1,6 +1,10 @@
 /*
- * Arquivo que realiza a importação dos registros armazenados em um arquivo do tipo .csv para um arquivo .dat,
- * realizando as devidas separações entre campos(usando delimitadores de campos), e entre registros.
+ * Trabalho de Organização de Arquivos - Arquivo de Criação do arquivo binário (Método 2)
+ * Autores do Trabalho (Nome/NUSP):
+ * - Bruno Mitsuo Homma 		9293605
+ * - Leonardo Mendes Bonato		9074308
+ * - Keith Tsukada Sasaki 		9293414
+ * - Valeska Paroni Silva 		7977886
  */
 #include <stdio.h>
 #include <stdlib.h>

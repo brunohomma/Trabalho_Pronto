@@ -1,3 +1,11 @@
+/*
+ * Trabalho de Organização de Arquivos - Arquivo Principal
+ * Autores do Trabalho (Nome/NUSP):
+ * - Bruno Mitsuo Homma 		9293605
+ * - Leonardo Mendes Bonato		9074308
+ * - Keith Tsukada Sasaki 		9293414
+ * - Valeska Paroni Silva 		7977886
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <registro1.h>
@@ -25,9 +33,26 @@ void catch_string(char **str2) {
 	} while(letra != ENTER);
 }
 
+// verifica se os arquivos existem
+int existeArquivos(const char *f1, const char *f2, const char *f3) {
+	FILE *stream1 = NULL, *stream2 = NULL, *stream3 = NULL;
+
+	stream1 = fopen(f1, "rb");
+	stream2 = fopen(f2, "rb");
+	stream3 = fopen(f3, "rb");
+
+	if (stream1 == NULL && stream2 == NULL && stream3 == NULL) return 0;
+
+	fclose(stream1);
+	fclose(stream2);
+	fclose(stream3);
+
+	return 1;
+}
+
 int main (int argc, char **argv) {
 	FILE *stream;
-	char *chave;
+	char *chave, c;
 	int op; // auxiliar para escolher as opções do programa
 	int nroCampo, nroRegistro, filtro;
 	regQtd = 0;
@@ -38,16 +63,20 @@ int main (int argc, char **argv) {
 			fread(&regQtd, sizeof(int), 1, aux);
 			fclose(aux);
 		}	
-		printf("Quantidade de registros: %d\n", regQtd);
+
 		interfaceInicial(); // cria um menu para escolher as operações do programa
 		do {
 			op = fgetc(stdin)-48; // pega um valor do teclado;
-			if (op == 0 || op > 8) printf("Opcão Inválida. Escolha uma opção válida!\n");
-			getchar();
-		} while (op == 0 || op > 8);	
+			if (op <= 0 || op > 7) {
+				printf("Opcão Inválida. Escolha uma opção válida!\n");
+				apagaTela();
+			}
+			else getchar();		
+		} while (op == 0 || op > 7);	
 			
 		switch(op) {
 			case 1: // cria o arquivo binario
+				printf("\e[H\e[2J");
 				stream = fopen("SCC0215012017projeto01turmaBdadosCompanhias.csv", "r"); // abre o arquivo de entrada para organizar os registros em um arquivos de saidas
 				importaRegistro_metodo1(stream);
 				printf("Arquivo 1 Criado com sucesso!\n");
@@ -56,14 +85,23 @@ int main (int argc, char **argv) {
 				importaRegistro_metodo2(stream);
 				printf("Arquivo 2 Criado com sucesso!\n");
 				fclose(stream);
+				apagaTela();
 				break;
 
 			case 2: // mostra todos os registros do arquivo binário
+			printf("\e[H\e[2J");
 			lerArquivoBinario();
+			apagaTela();
 			break;	
 
 			case 3: // busca registros por filtração de dados
 				stream = fopen("RegBin_metodo1.dat", "rb");
+				printf("\e[H\e[2J");
+				if (stream == NULL) {
+					printf("Não foi possível Ler o arquivo! Arquivo inexistente...\n");
+					apagaTela();
+					break;
+				}
 				interfaceFacial();
 				printf("Filtro: ");
 				fscanf(stdin, "%d", &filtro);
@@ -71,44 +109,52 @@ int main (int argc, char **argv) {
 				catch_string(&chave);
 				buscaFiltrada(stream, filtro, chave);
 				fclose(stream);
+				apagaTela();
 				break;
 
 
 			case 4: // busca registro pela sua posição lógica
-				printf("Registro: ");
+				printf("\e[H\e[2J");
+				printf("Escolha qual registro a ser buscado: ");
 				fscanf(stdin, "%d", &nroRegistro);
-				printf("\n");
 				getchar();
 				buscaRegistro(nroRegistro);
+				apagaTela();
 				break;
 
 			case 5: // busca um campo de um determinado registro (posições lógicas em ambos)
+				printf("\e[H\e[2J");
+				printf("Escolha um campo de um registro para ser buscado:\n");
 				printf("Campo: ");
 				fscanf(stdin, "%d", &nroCampo);
 				getchar();
 				printf("Registro: ");
 				fscanf(stdin, "%d", &nroRegistro);
-				printf("\n");
 				getchar();
 				buscaCampo(nroCampo, nroRegistro);
+				apagaTela();
 				break;	
 
-			case 6: // clear na tela do terminal
-				 printf("\e[H\e[2J");
-				break;	
+			case 6: // remove todos os arquivos binarios criados pelo programa
+				printf("\e[H\e[2J");
+				if (existeArquivos("RegBin_metodo1.dat", "RegBin_metodo2.dat", "regQtd.dat")) {
+					printf("Removendo os arquivos binários...\n");
+					remove("RegBin_metodo1.dat");
+					remove("RegBin_metodo2.dat");
+					remove("regQtd.dat");
+				}
 
-			case 7: // apaga arquivos
-				remove("RegBin_metodo1.dat");
-				remove("RegBin_metodo2.dat");
-				remove("regQtd.dat");
+				else printf("Arquivos não existentes. Nada foi removido...\n");	
+				apagaTela();
 				regQtd = 0;
 				break;	
 
-			case 8: // só mostra mensagem de encerramento
+			case 7: // só mostra mensagem de encerramento
+				printf("\e[H\e[2J");
 				printf("Programa encerrado...\n");
 				break;		
 		}
-	} while (op != 8);	
+	} while (op != 7);	
 	
 	return 0;
 }

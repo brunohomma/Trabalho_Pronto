@@ -1,3 +1,11 @@
+/*
+ * Trabalho de Organização de Arquivos - Arquivo Buscas Básicas
+ * Autores do Trabalho (Nome/NUSP):
+ * - Bruno Mitsuo Homma 		9293605
+ * - Leonardo Mendes Bonato		9074308
+ * - Keith Tsukada Sasaki 		9293414
+ * - Valeska Paroni Silva 		7977886
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,7 +13,7 @@
 #include <buscafiltrada.h>
 
 //--------------------------------------------- Parte 2 feita por Leonardo------------------------------------------------//
-// Keith ou Valeska, testem a parte do leonardo no seus notebooks e me digam se funcionou, caso não funcione utilize minha parte
+// Se a parte 2 do Leonardo não funcionar, testar a parte 2 do Bruno
 void lerRegistroBinario(FILE *stream){
 	int i, fieldSize = 0, regSize; // cria uma variavel para armazenar o tamanho do registro, e o contador do tamanho de campos.
 	char c;	// cria uma variavel para armazenar o byte lido no arquivo.
@@ -119,10 +127,11 @@ void lerArquivoBinario(){
 	fclose(binaryFile);
 }
 //----------------------------------------Fim da parte 2 Feita por Leonardo----------------------------------------//
+
 //---------------------------------------------Parte 2 feita por Bruno--------------------------------------------//
 /*void lerRegistroBinario(FILE *stream) {
-	char *registro;
-	int reg_size, reg_pos = 1;
+	char *registro; // guarda o registro com seus campos
+	int reg_size, reg_pos = 1; // tamanho do registro, posição lógica do mesmo
 
 	do {
 		registro = registros(stream, &reg_size); // guarda o registro na memória
@@ -139,26 +148,25 @@ void lerArquivoBinario(){
 void lerArquivoBinario(){
 	FILE *binaryFile = fopen("RegBin_metodo1.dat", "rb");
 
-	char CNPJ[18], c;
-	int regIndex = 1;
-		
-	if(binaryFile == NULL){
-		printf("I could not read this file!\n");
+	if (binaryFile == NULL) {
+		printf("Não foi possível Ler o arquivo! Arquivo inexistente...\n");
 		return;
-	}else {
-			lerRegistroBinario(binaryFile);
 	}
+
+	else lerRegistroBinario(binaryFile);
 	
 	fclose(binaryFile);
 }*/
 //--------------------------------------- Fim da parte 2 Feita por Bruno -----------------------------//
 
-////////////////////////////// parte 5 e 6 ////////////////////////////
+//------------------------------------ parte 5 e 6 --------------------------------------------------//
 struct registro * devolveRegistroBuscado(FILE *stream, int nroRegistro){
-	int regSize, countReg=0, achou = 0;
-	char c;
-	struct registro *reg;
+	int regSize, countReg = 0, achou = 0; // tamanho do registro, conta as posições lógicas dos registros, flag para procurar registros no arquivo binário
+	char c; // auxiliar para armazenar os dados dos campos nas strings 
+	struct registro *reg; // registro definido em estrutura de dados
+	// ponteiros para cada campo do resgitro
 	char *CNPJ, *nomeSocial, *nomeFantasia, *dataRegistro, *dataCancelamento, *motivoCancelamento, *nomeEmpresa, *CNPJAuditor;
+	// seta os ponteiros como vázios
 	CNPJ = NULL;
 	nomeSocial = NULL;
 	nomeFantasia = NULL;
@@ -243,6 +251,7 @@ struct registro * devolveRegistroBuscado(FILE *stream, int nroRegistro){
 		}
 	}
 
+	// guarda os campos na estrutura de dados que representa um registro
 	reg->CNPJ = CNPJ;
 	reg->nomeSocial = nomeSocial;
 	reg->nomeFantasia = nomeFantasia;
@@ -312,8 +321,9 @@ void printaCampoBuscado(struct registro *reg, int nroReg, int nroCampo){
 			break;
 
 		default:
-			printf("Não possui esse campo\n");
-			break;	
+			printf("\e[H\e[2J");
+			printf("Esse campo é inexistente...\n");
+			return;	
 	}
 	printf("------------------------------------------------------------------------------\n");
 
@@ -322,10 +332,13 @@ void printaCampoBuscado(struct registro *reg, int nroReg, int nroCampo){
 // Busca o campo de um registro desejado
 void buscaCampo(int nroCampo,int nroReg){
 	FILE *binaryFile = fopen("RegBin_metodo1.dat", "rb");
+	if(binaryFile == NULL){
+		printf("Não foi possível Ler o arquivo! Arquivo inexistente...\n");
+		return;
+	}
 	struct registro *reg = devolveRegistroBuscado(binaryFile,nroReg);
-	if (reg == NULL) return;
+	if (reg == NULL) return; // caso não encontre o registro escolhido
 	printaCampoBuscado(reg,nroReg,nroCampo);
-	printf("\n");
 	fclose(binaryFile);
 	freeReg(reg);
 }
@@ -333,10 +346,13 @@ void buscaCampo(int nroCampo,int nroReg){
 // Busca o registro desejado
 void buscaRegistro(int nroReg){
 	FILE *binaryFile = fopen("RegBin_metodo1.dat", "rb");
+	if(binaryFile == NULL){
+		printf("Não foi possível Ler o arquivo! Arquivo inexistente...\n");
+		return;
+	}
 	struct registro *reg = devolveRegistroBuscado(binaryFile,nroReg);
 	if (reg == NULL) return; // caso não encontre o registro escolhido
 	printaRegistroBuscado(reg,nroReg);
-	printf("\n");
 	fclose(binaryFile);
 	freeReg(reg);
 }
