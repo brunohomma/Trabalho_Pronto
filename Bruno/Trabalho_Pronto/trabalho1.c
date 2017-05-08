@@ -103,7 +103,7 @@ int main (int argc, char **argv) {
 					break;
 				}
 				interfaceFacial();
-				printf("Filtro: ");
+				printf("Selecione um campo: ");
 				fscanf(stdin, "%d", &filtro);
 				getchar();
 				catch_string(&chave);

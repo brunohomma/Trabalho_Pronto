@@ -99,10 +99,10 @@ void printRegistro(char *registro, int reg_pos) {
 
 // busca por palavras-chaves dentro de um determinado campo
 void buscaPor(char *registro, int size, char *chave, int campo, int reg_pos) {
-	int p = 0; // somente usado para auxiliar no preenchimento da string palavraChave
-	int inicial, final, tam; // para definir o tamanho da string palavraChave
-	char *palavraChave; // armazena a string do mesmo campo para cada registro
-	char *aux; // auxiliar que se não tiver nulo, é porque achou a string chave contida na string palavraChave
+	int p = 0; // somente usado para auxiliar no preenchimento da string campoSelecionado
+	int inicial, final, tam; // para definir o tamanho da string campoSelecionado
+	char *campoSelecionado; // armazena a string do mesmo campo para cada registro
+	char *aux; // auxiliar que se não tiver nulo, é porque achou a string chave contida na string campoSelecionado
 
 	// Verifica qual campo deve ser verificado para cada registro
 	if (campo > 1) { // caso seja pra filtrar as buscas pelos demais campos existentes sem ser o primeiro
@@ -110,29 +110,52 @@ void buscaPor(char *registro, int size, char *chave, int campo, int reg_pos) {
 		if (registro[inicial] == '|') inicial += 1;
 		final = pos[campo-1]+1;
 		tam = final-inicial;
-		palavraChave = (char *)malloc(sizeof(char)*tam);
-		for (int i = inicial; i < final; i++) palavraChave[p++] = registro[i];
+		campoSelecionado = (char *)malloc(sizeof(char)*tam);
+		for (int i = inicial; i < final; i++) campoSelecionado[p++] = registro[i];
 	}
 
 	else { // caso seja pra filtrar as buscas pelo campo 1
 		inicial = 0;
 		final = pos[campo-1]+1;
 		tam = final-inicial;
-		palavraChave = (char *)malloc(sizeof(char)*tam);
-		for (int i = inicial; i < final; i++) palavraChave[p++] = registro[i];
+		campoSelecionado = (char *)malloc(sizeof(char)*tam);
+		for (int i = inicial; i < final; i++) campoSelecionado[p++] = registro[i];
 	}
 
-	for (int i = 0; i < strlen(chave); i++) {
-		if (chave[i] >= 97 && chave[i] <= 122) chave[i] -= 32;
+	// Realiza uma converção de maiúsculos e minúsculos para funcionar na hora de encontrar as sub-strings na string do campo selecionado
+	if (campo != 6) { // Como os campos 2, 3, 7 estão tudo em letra maiúscula, converte as letras minúsculas da string chave em maiúsculas
+ 		for (int i = 0; i < strlen(chave); i++) 
+			if (chave[i] >= 97 && chave[i] <= 122) chave[i] -= 32;
 	}
 
-	// procura a sub-string chave na string palavraChave
-	aux = strstr(palavraChave, chave);
+	else { // Como o campo 6, nem todas as letras são maiúsculas, verifica se na chave há uma letra maiúscula para não ter que realizar a converção
+		int auxFlag = 1;
+		for (int i = 0; i < strlen(chave); i++) {
+			if (chave[i] >= 65 && chave[i] <= 90) {
+				auxFlag = 0;
+				break;
+			}
+		}
+
+		// canverte todas as letras maiúsculas do campo, em minúsculas. Porém, sem alterar os dados do registro, pois o campo está em uma string auxiliar
+		if (auxFlag) {
+			for (int i = 0; i < p; i++) {
+				if (campoSelecionado[i] >= 65 && campoSelecionado[i] <= 90) campoSelecionado[i] +=32;
+			}
+		}
+	} 
+	//	
+
+	// procura a sub-string chave na string campoSelecionado
+	aux = strstr(campoSelecionado, chave);
 
 	if (aux != NULL) {
 		printRegistro(registro, reg_pos); // imprime o registro caso encontre a sub-string
 		filtroNaoEncontrado = 0; // caso encontre o filtro, desliga a flag
-	} 
+	}
+
+	// desaloca as vari
+	free(campoSelecionado); 
 }
 
 // Carrega um registro na memória
@@ -173,7 +196,6 @@ void buscaFiltrada(FILE *stream, int filtro, char *chave) {
 
 	do {
 		registro = registros(stream, &reg_size); // carrega um registro na memória
-		
 		if (reg_size) { // se o registro existir
 
 			// verifica qual tipo de filtro e busca por palavra-chave
